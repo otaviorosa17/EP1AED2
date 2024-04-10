@@ -1,1 +1,2 @@
-# EP1AED2
+## Este é um exercício de programação (EP) proposto para a realização da disciplina AED II (Algoritmos e Estruturas de Dados II)
+Ao longo do EP será necessário completar o código completeERenomeie.c com 8 funções incompletas. O PDF ep1.pdf fornece informações detalhadas sobre cada função.
