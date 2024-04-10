@@ -227,15 +227,15 @@ void exibeArranjoInteiros(int* arranjo, int n){
 /* Vizinhos em Comum */
 void vizinhosEmComum(Grafo* g, int v, int* vizinhos){
   int i, atual, counter;
-    for(i = 0; i<g->numVertices; i++) {
-      counter = 0;
-      for(atual = 0; atual<g->numVertices; atual++) {
-          if (g->matriz[i][atual] && g->matriz[v][atual] == 1) {
-              counter++;
-          }
-      }
-      vizinhos[i] = counter;
+  for(i = 0; i<g->numVertices; i++) {
+    counter = 0;
+    for(atual = 0; atual<g->numVertices; atual++) {
+        if (g->matriz[i][atual] && g->matriz[v][atual] == 1) {
+            counter++;
+        }
     }
+    vizinhos[i] = counter;
+  }
 }
 
 
@@ -243,35 +243,62 @@ void vizinhosEmComum(Grafo* g, int v, int* vizinhos){
 /* Coeficiente de Jaccard */
 void coeficienteDeJaccard(Grafo* g, int v, float* coeficientes){
   int i, atual, AndCounter, OrCounter;
-    for(i = 0; i<g->numVertices; i++) {
-      AndCounter = 0;
-      OrCounter = 0;
-      for(atual = 0; atual<g->numVertices; atual++) {
-          if (g->matriz[i][atual] || g->matriz[v][atual] == 1) {
-            OrCounter++;
-            if (g->matriz[i][atual] && g->matriz[v][atual] == 1) {
-              AndCounter++;
-            }
+  for(i = 0; i<g->numVertices; i++) {
+    AndCounter = 0;
+    OrCounter = 0;
+    for(atual = 0; atual<g->numVertices; atual++) {
+        if (g->matriz[i][atual] || g->matriz[v][atual] == 1) {
+          OrCounter++;
+          if (g->matriz[i][atual] && g->matriz[v][atual] == 1) {
+            AndCounter++;
           }
-      }
-      if (OrCounter == 0) coeficientes[i] = -1;
-      else coeficientes[i] = (float) AndCounter/OrCounter;
+        }
     }
+    if (OrCounter == 0) coeficientes[i] = -1;
+    else coeficientes[i] = (float) AndCounter/OrCounter;
+  }
 }
 
 
 /* Medida Adamic Adar */
 void AdamicAdar(Grafo* g, int v, float* coeficientes){
-
-/* Complete o codigo desta funcao */
-
+  int i, atual, x, vizinhosZ;
+  for(i = 0; i<g->numVertices; i++) {
+    float somatorio = 0;
+    for(atual = 0; atual<g->numVertices; atual++) {
+      if (g->matriz[i][atual] && g->matriz[v][atual] == 1) {
+        vizinhosZ = 0;
+        for(x=0; x<g->numVertices;x++) {
+          if (g->matriz[atual][x] == 1) {
+            vizinhosZ++;
+          }
+        }
+        somatorio = somatorio + 1/logf(vizinhosZ);
+      }
+    }
+    coeficientes[i] = somatorio;
+  }
 }
 
 
 /* Alocacao de Recursos */
 void alocacaoDeRecursos(Grafo* g, int v, float* coeficientes){
-
-/* Complete o codigo desta funcao */
+  int i, atual, x, vizinhosZ;
+  for(i = 0; i<g->numVertices; i++) {
+    float somatorio = 0;
+    for(atual = 0; atual<g->numVertices; atual++) {
+      if (g->matriz[i][atual] && g->matriz[v][atual] == 1) {
+        vizinhosZ = 0;
+        for(x=0; x<g->numVertices;x++) {
+          if (g->matriz[atual][x] == 1) {
+            vizinhosZ++;
+          }
+        }
+        somatorio = somatorio + (1/(float)vizinhosZ);
+      }
+    }
+    coeficientes[i] = somatorio;
+  }
 
 }
 
@@ -335,19 +362,20 @@ int main() {
 /*printf("Vizinhos em Comum de v0:\n");
   vizinhosEmComum(&g1, 0, vComum);
   exibeArranjoInteiros(vComum, n);
-*/
   printf("Coeficientes de Jaccard de v0:\n");
   coeficienteDeJaccard(&g1, 0, coeficientes);
   exibeArranjoReais(coeficientes, n);
-/*
+
 
   printf("Medida de Adamic-Adar de v0:\n");
   AdamicAdar(&g1, 0, coeficientes);
   exibeArranjoReais(coeficientes, n);
+*/
 
   printf("Medida de Alocacao de Recursos de v0:\n");
   alocacaoDeRecursos(&g1, 0, coeficientes);
   exibeArranjoReais(coeficientes, n);
+/*
 
   printf("Similaridade Cosseno de v0:\n");
   similaridadeCosseno(&g1, 0, coeficientes);
