@@ -11,6 +11,11 @@
 
 // gcc 14748601.c -lm
 
+/*  Este programa fornece funções que calculam 8 métricas de grafos, 
+    bem como alguns testes executados na main(), algumas funções de suporte
+    já foram fornecidas no código do arquivo "completeERenomeie.c".
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -226,15 +231,15 @@ void exibeArranjoInteiros(int* arranjo, int n){
 
 /* Vizinhos em Comum */
 void vizinhosEmComum(Grafo* g, int v, int* vizinhos){
-  int i, atual, counter;
+  int i, atual, vizinhosEmComum;
   for(i = 0; i<g->numVertices; i++) {
-    counter = 0;
+    vizinhosEmComum = 0;
     for(atual = 0; atual<g->numVertices; atual++) {
         if (g->matriz[i][atual] && g->matriz[v][atual] == 1) {
-            counter++;
+            vizinhosEmComum++;
         }
     }
-    vizinhos[i] = counter;
+    vizinhos[i] = vizinhosEmComum;
   }
 }
 
@@ -242,20 +247,20 @@ void vizinhosEmComum(Grafo* g, int v, int* vizinhos){
 
 /* Coeficiente de Jaccard */
 void coeficienteDeJaccard(Grafo* g, int v, float* coeficientes){
-  int i, atual, AndCounter, OrCounter;
+  int i, atual, andCounter, orCounter;
   for(i = 0; i<g->numVertices; i++) {
-    AndCounter = 0;
-    OrCounter = 0;
+    andCounter = 0;
+    orCounter = 0;
     for(atual = 0; atual<g->numVertices; atual++) {
         if (g->matriz[i][atual] || g->matriz[v][atual] == 1) {
-          OrCounter++;
+          orCounter++;
           if (g->matriz[i][atual] && g->matriz[v][atual] == 1) {
-            AndCounter++;
+            andCounter++;
           }
         }
     }
-    if (OrCounter == 0) coeficientes[i] = -1;
-    else coeficientes[i] = (float) AndCounter/OrCounter;
+    if (orCounter == 0) coeficientes[i] = -1;
+    else coeficientes[i] = (float) andCounter/orCounter;
   }
 }
 
@@ -268,11 +273,7 @@ void AdamicAdar(Grafo* g, int v, float* coeficientes){
     for(atual = 0; atual<g->numVertices; atual++) {
       if (g->matriz[i][atual] && g->matriz[v][atual] == 1) {
         vizinhosZ = 0;
-        for(x=0; x<g->numVertices;x++) {
-          if (g->matriz[atual][x] == 1) {
-            vizinhosZ++;
-          }
-        }
+        vizinhosZ = retornaGrauDoVertice(g, atual);
         somatorio = somatorio + 1/logf(vizinhosZ);
       }
     }
@@ -289,11 +290,7 @@ void alocacaoDeRecursos(Grafo* g, int v, float* coeficientes){
     for(atual = 0; atual<g->numVertices; atual++) {
       if (g->matriz[i][atual] && g->matriz[v][atual] == 1) {
         vizinhosZ = 0;
-        for(x=0; x<g->numVertices;x++) {
-          if (g->matriz[atual][x] == 1) {
-            vizinhosZ++;
-          }
-        }
+        vizinhosZ = retornaGrauDoVertice(g, atual);
         somatorio = somatorio + (1/(float)vizinhosZ);
       }
     }
@@ -305,33 +302,83 @@ void alocacaoDeRecursos(Grafo* g, int v, float* coeficientes){
 
 /* Similaridade Cosseno */
 void similaridadeCosseno(Grafo* g, int v, float* coeficientes){
-
-/* Complete o codigo desta funcao */
-
+  int atual,grauV;
+  int* vizinhosEmComumV = (int*)malloc(g->numVertices*(sizeof(int)));
+  int* grauAtual = (int*)malloc(g->numVertices*(sizeof(int)));
+  float raiz;
+  grauV = retornaGrauDoVertice(g,v);
+  vizinhosEmComum(g,v,vizinhosEmComumV);
+  for(atual = 0; atual<g->numVertices; atual++) {
+    grauAtual[atual] = retornaGrauDoVertice(g,atual);
+    raiz = sqrt((float)grauV*grauAtual[atual]);
+    if (raiz==0) coeficientes[atual] = -1;
+    else coeficientes[atual] = ((float)vizinhosEmComumV[atual])/raiz;
+  }
 }
 
 
 /* Coeficiente de Dice */
 void coeficienteDeDice(Grafo* g, int v, float* coeficientes){
+  int atual,grauV;
+  int* vizinhosEmComumV = (int*)malloc(g->numVertices*(sizeof(int)));
+  int* grauAtual = (int*)malloc(g->numVertices*(sizeof(int)));
+  float soma;
+  grauV = retornaGrauDoVertice(g,v);
+  vizinhosEmComum(g,v,vizinhosEmComumV);
+  for(atual = 0; atual<g->numVertices; atual++) {
+    grauAtual[atual] = retornaGrauDoVertice(g,atual);
+    soma = (float)(grauAtual[atual] + grauV);
+    if (soma==0) coeficientes[atual] = -1;
+    else coeficientes[atual] = ((float)2*vizinhosEmComumV[atual])/soma;
+  }
+}
 
-/* Complete o codigo desta funcao */
 
+/* Função que retorna o valor mínimo entre dois inteiros*/
+int min(int a, int b) {
+  return (a<b) ? a : b;
+}
+
+
+
+/* Função que retorna o valor máximo entre dois inteiros*/
+int max(int a, int b) {
+  return (a>b) ? a : b;
 }
 
 
 /* Hub Promoted Index */
 void HPI(Grafo* g, int v, float* coeficientes){
-
-/* Complete o codigo desta funcao */
+  int atual,grauV;
+  int* vizinhosEmComumV = (int*)malloc(g->numVertices*(sizeof(int)));
+  int* grauAtual = (int*)malloc(g->numVertices*(sizeof(int)));
+  float minimo;
+  grauV = retornaGrauDoVertice(g,v);
+  vizinhosEmComum(g,v,vizinhosEmComumV);
+  for(atual = 0; atual<g->numVertices; atual++) {
+    grauAtual[atual] = retornaGrauDoVertice(g,atual);
+    minimo = (float)min(grauAtual[atual],grauV);
+    if (minimo==0) coeficientes[atual] = -1;
+    else coeficientes[atual] = ((float)vizinhosEmComumV[atual])/minimo;
+  }
 
 }
 
 
 /* Hub Depressed Index */
 void HDI(Grafo* g, int v, float* coeficientes){
-
-/* Complete o codigo desta funcao */
-
+  int atual,grauV;
+  int* vizinhosEmComumV = (int*)malloc(g->numVertices*(sizeof(int)));
+  int* grauAtual = (int*)malloc(g->numVertices*(sizeof(int)));
+  float maximo;
+  grauV = retornaGrauDoVertice(g,v);
+  vizinhosEmComum(g,v,vizinhosEmComumV);
+  for(atual = 0; atual<g->numVertices; atual++) {
+    grauAtual[atual] = retornaGrauDoVertice(g,atual);
+    maximo = (float)max(grauAtual[atual],grauV);
+    if (maximo==0) coeficientes[atual] = -1;
+    else coeficientes[atual] = ((float)vizinhosEmComumV[atual])/maximo;
+  }
 }
 
 
@@ -359,7 +406,7 @@ int main() {
 
   exibeGrafo(&g1);
 
-/*printf("Vizinhos em Comum de v0:\n");
+  printf("Vizinhos em Comum de v0:\n");
   vizinhosEmComum(&g1, 0, vComum);
   exibeArranjoInteiros(vComum, n);
   printf("Coeficientes de Jaccard de v0:\n");
@@ -370,12 +417,10 @@ int main() {
   printf("Medida de Adamic-Adar de v0:\n");
   AdamicAdar(&g1, 0, coeficientes);
   exibeArranjoReais(coeficientes, n);
-*/
 
   printf("Medida de Alocacao de Recursos de v0:\n");
   alocacaoDeRecursos(&g1, 0, coeficientes);
   exibeArranjoReais(coeficientes, n);
-/*
 
   printf("Similaridade Cosseno de v0:\n");
   similaridadeCosseno(&g1, 0, coeficientes);
@@ -392,8 +437,8 @@ int main() {
   HDI(&g1, 0, coeficientes);
   printf("Indice HDI de v0:\n");
   exibeArranjoReais(coeficientes, n);
-*/
-/*  printf("\n\nSEGUNDO EXEMPLO\n");
+
+  printf("\n\nSEGUNDO EXEMPLO\n");
 
   // Excluindo duas arestas do grafo
   removeAresta(&g1,0,2);
@@ -434,10 +479,9 @@ int main() {
   printf("Indice HDI de v0:\n");
   exibeArranjoReais(coeficientes, n);
 
-*/
   /* Grafo gerado aleatoriamente - pode ficar diferente
-     de acordo com o compilador usado.                 */
-/*  printf("\nTERCEIRO EXEMPLO\n");
+    de acordo com o compilador usado.                 */
+  printf("\nTERCEIRO EXEMPLO\n");
   n = 6;
   int arestas = 8;
   
@@ -551,6 +595,5 @@ int main() {
   printf("Indice HDI de v5:\n");
   HDI(g2, 5, coeficientes);
   exibeArranjoReais(coeficientes, n);
-*/
   return 0;  
 }
