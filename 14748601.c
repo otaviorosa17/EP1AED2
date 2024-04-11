@@ -367,7 +367,7 @@ void HPI(Grafo* g, int v, float* coeficientes){
     if (minimo==0) coeficientes[atual] = -1; // cobre o caso em que o denominador (minimo) é igual a zero
     else coeficientes[atual] = ((float)vizinhosEmComumV[atual])/minimo; // preenche o array passado como parâmetro da função com os coeficientes de cada vértice do grafo
   }
-
+  free(vizinhosEmComumV); // libera memória do array "vizinhosEmComumV" anteriormente alocado
 }
 
 
@@ -385,6 +385,7 @@ void HDI(Grafo* g, int v, float* coeficientes){
     if (maximo==0) coeficientes[atual] = -1; // cobre o caso em que o denominador (maximo) é igual a zero
     else coeficientes[atual] = ((float)vizinhosEmComumV[atual])/maximo; // preenche o array passado como parâmetro da função com os coeficientes de cada vértice do grafo
   }
+  free(vizinhosEmComumV); // libera memória do array "vizinhosEmComumV" anteriormente alocado
 }
 
 
