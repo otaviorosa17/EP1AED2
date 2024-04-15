@@ -233,6 +233,7 @@ void exibeArranjoInteiros(int* arranjo, int n){
 /* Funcao que verifica quantos vizinhos em comum v tem com cada um dos vertices do grafo*/
 void vizinhosEmComum(Grafo* g, int v, int* vizinhos){
   int atual, i, vizinhosEmComum;
+  for (atual=0; atual<g->numVertices; atual++) vizinhos[atual]=0; // zera o array "vizinhos"
   for(atual = 0; atual<g->numVertices; atual++) { // loop que percorre todo vertice do grafo "linha" por "linha"
     vizinhosEmComum = 0;
     for(i = 0; i<g->numVertices; i++) { // loop que percorre a "linha" de vizinhos (1) ou nao vizinhos (0) do vertice atual
@@ -250,6 +251,7 @@ void vizinhosEmComum(Grafo* g, int v, int* vizinhos){
 /* Funcao que calcula o Coeficiente de Jaccard do vertice v em relacao a cada um dos vertices do grafo*/
 void coeficienteDeJaccard(Grafo* g, int v, float* coeficientes){
   int atual, i, andCounter, orCounter;
+  for (atual=0; atual<g->numVertices; atual++) coeficientes[atual]=0.0; // zera o array "coeficientes"
   for(atual = 0; atual<g->numVertices; atual++) { // loop que percorre todo vertice do grafo "linha" por "linha"
     andCounter = 0;
     orCounter = 0;
@@ -267,20 +269,24 @@ void coeficienteDeJaccard(Grafo* g, int v, float* coeficientes){
 }
 
 
-/* Medida Adamic Adar */
-/* Funcao que calcula a metrica Adamic Adar do vertice v em relacao a cada um dos vertices do grafo*/
+/* Medida Adamic-Adar */
+/* Funcao que calcula a metrica Adamic-Adar do vertice v em relacao a cada um dos vertices do grafo*/
 void AdamicAdar(Grafo* g, int v, float* coeficientes){
-  int atual, i, x, vizinhosI;
+  int atual, i, vizinhosI;
+  for (atual=0; atual<g->numVertices; atual++) coeficientes[atual]=0.0; // zera o array "coeficientes"
   for(atual = 0; atual<g->numVertices; atual++) { // loop que percorre todo vertice do grafo "linha" por "linha"
     float somatorio = 0;
     for(i = 0; i<g->numVertices; i++) { // loop que percorre a "linha" de vizinhos (1) ou nao vizinhos (0) do vertice atual
       if (g->matriz[atual][i] && g->matriz[v][i] == 1) {  // verifica se i e um vizinho em comum entre o v e o atual
         vizinhosI = 0;
         vizinhosI = retornaGrauDoVertice(g, i); // calcula o número de vizinhos de i
-        somatorio = somatorio + 1/logf(vizinhosI); // calcula o valor de um elemento do somatorio de Adamic Adar e acumula o valor na variavel somatorio
+        if (vizinhosI == 1) { // verifica a condição na qual o número do somatório seria uma divisão por 0
+          coeficientes[atual] = -1;
+        }
+        else somatorio = somatorio + 1/logf(vizinhosI); // calcula o valor de um elemento do somatorio de Adamic-Adar e acumula o valor na variavel somatorio
       }
     }
-    coeficientes[atual] = somatorio; // preenche o array fornecido atraves do parâmetro da funcao com os respectivos coeficientes de cada vertice
+    if (coeficientes[atual]!=-1) coeficientes[atual] = somatorio; // preenche o array fornecido atraves do parâmetro da funcao com os respectivos coeficientes de cada vertice
   }
 }
 
@@ -288,7 +294,8 @@ void AdamicAdar(Grafo* g, int v, float* coeficientes){
 /* Alocacao de Recursos */
 /* Funcao que calcula a medida Alocacao de Recursos do vertice v em relacao a cada um dos vertices do grafo*/
 void alocacaoDeRecursos(Grafo* g, int v, float* coeficientes){
-  int atual, i, x, vizinhosI;
+  int atual, i, vizinhosI;
+  for (atual=0; atual<g->numVertices; atual++) coeficientes[atual]=0.0; // zera o array "coeficientes"
   for(atual = 0; atual<g->numVertices; atual++) { // loop que percorre todo vertice do grafo "linha" por "linha"
     float somatorio = 0;
     for(i = 0; i<g->numVertices; i++) { // loop que percorre a "linha" de vizinhos (1) ou nao vizinhos (0) do vertice atual
@@ -310,6 +317,7 @@ void similaridadeCosseno(Grafo* g, int v, float* coeficientes){
   int atual,grauV,grauAtual;
   int* vizinhosEmComumV = (int*)malloc(g->numVertices*(sizeof(int))); // aloca memoria para um array que guardara os vizinhos em comum de v com cada vertice do grafo
   float raiz;
+  for (atual=0; atual<g->numVertices; atual++) coeficientes[atual]=0.0; // zera o array "coeficientes"
   grauV = retornaGrauDoVertice(g,v); // guarda o número de vizinhos de v
   vizinhosEmComum(g,v,vizinhosEmComumV); // usa a funcao vizinhosEmComum ja programada para preencher o array vizinhosEmComumV com o número de vizinhos de v com cada vertice do grafo
   for(atual = 0; atual<g->numVertices; atual++) { // loop que percorre todo vertice do grafo "linha" por "linha"
@@ -330,6 +338,8 @@ void coeficienteDeDice(Grafo* g, int v, float* coeficientes){
   float soma;
   grauV = retornaGrauDoVertice(g,v); // guarda o número de vizinhos de v
   vizinhosEmComum(g,v,vizinhosEmComumV); // usa a funcao vizinhosEmComum ja programada para preencher o array vizinhosEmComumV com o número de vizinhos de v com cada vertice do grafo
+  for (atual=0; atual<g->numVertices; atual++) coeficientes[atual]=0.0; // zera o array "coeficientes"
+  for (atual=0; atual<g->numVertices; atual++) coeficientes[atual]=0.0; // zera o array "coeficientes"
   for(atual = 0; atual<g->numVertices; atual++) { // loop que percorre todo vertice do grafo "linha" por "linha"
     grauAtual = retornaGrauDoVertice(g,atual); // guarda o número de vizinhos do vertice atual
     soma = (float)(grauAtual + grauV); // guarda o valor do denominador da formula "Coeficiente de Dice"
@@ -361,6 +371,7 @@ void HPI(Grafo* g, int v, float* coeficientes){
   float minimo;
   grauV = retornaGrauDoVertice(g,v); // guarda o número de vizinhos de v
   vizinhosEmComum(g,v,vizinhosEmComumV); // usa a funcao vizinhosEmComum ja programada para preencher o array vizinhosEmComumV com o número de vizinhos de v com cada vertice do grafo
+  for (atual=0; atual<g->numVertices; atual++) coeficientes[atual]=0.0; // zera o array "coeficientes"
   for(atual = 0; atual<g->numVertices; atual++) { // loop que percorre todo vertice do grafo "linha" por "linha"
     grauAtual = retornaGrauDoVertice(g,atual); // guarda o número de vizinhos do vertice atual
     minimo = (float)min(grauAtual,grauV); // guarda o valor do denominador da formula "HPI"
@@ -379,6 +390,7 @@ void HDI(Grafo* g, int v, float* coeficientes){
   float maximo;
   grauV = retornaGrauDoVertice(g,v); // guarda o número de vizinhos de v
   vizinhosEmComum(g,v,vizinhosEmComumV); // usa a funcao vizinhosEmComum ja programada para preencher o array vizinhosEmComumV com o número de vizinhos de v com cada vertice do grafo
+  for (atual=0; atual<g->numVertices; atual++) coeficientes[atual]=0.0; // zera o array "coeficientes"
   for(atual = 0; atual<g->numVertices; atual++) { // loop que percorre todo vertice do grafo "linha" por "linha"
     grauAtual = retornaGrauDoVertice(g,atual);  // guarda o número de vizinhos do vertice atual
     maximo = (float)max(grauAtual,grauV); // guarda o valor do denominador da formula "HPI"
